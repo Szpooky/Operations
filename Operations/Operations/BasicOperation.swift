@@ -46,9 +46,11 @@ class BasicOperation: Operation {
     
     func run() {
         autoreleasepool {
-            queue.addOperation(self)
-            if isSync == true {
-                let _ = semaphore.wait(timeout: .now() + 99999)
+            if self.isRunning() == false && self.isCancelled() == false && self.isFinished() == false {
+                queue.addOperation(self)
+                if isSync == true {
+                    let _ = semaphore.wait(timeout: .now() + 99999)
+                }
             }
         }
     }
@@ -103,16 +105,12 @@ class BasicOperation: Operation {
         OperationCenter.shared.reportOperation(self)
     }
     
-    func forceQuit() {
-        // under construction
-        taskSemaphore.signal()
-        semaphore.signal()
-    }
-    
-    override func waitUntilFinished() {
+    func wait() {
         autoreleasepool {
-            isWaiting = true
-            let _ = taskSemaphore.wait(timeout: .now() + 99999)
+            if isWaiting == false {
+                isWaiting = true
+                let _ = taskSemaphore.wait(timeout: .now() + 99999)
+            }
         }
     }
     
@@ -122,7 +120,7 @@ class BasicOperation: Operation {
             return;
         }
         
-        self.isOperationRunning = true
+        isOperationRunning = true
     }
     
     deinit {

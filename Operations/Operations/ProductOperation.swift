@@ -25,7 +25,7 @@ class ProductOperation : BasicOperation, SKProductsRequestDelegate {
                 self.request = request
                 request.start()
                 
-                waitUntilFinished()
+                wait()
             }
         }
     }

@@ -47,7 +47,7 @@ class URLOperation: BasicOperation {
                     task.resume()
                     self.isOperationRunning = true
                     
-                    waitUntilFinished()
+                    wait()
                     
                     URLSessionObserver.shared.removeURLOperation(self)
                 }
