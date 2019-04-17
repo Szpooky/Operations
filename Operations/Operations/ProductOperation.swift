@@ -1,9 +1,9 @@
 //
 //  ProductOperation.swift
-//  NSURLOperation
+//  Operations
 //
-//  Created by Peter Sipos on 2019. 04. 09..
-//  Copyright © 2019. Szpooky. All rights reserved.
+//  Created by Peter Sipos on 2019. 04. 12..
+//  Copyright © 2019. Peter Sipos. All rights reserved.
 //
 
 import Foundation
@@ -28,6 +28,10 @@ class ProductOperation : BasicOperation, SKProductsRequestDelegate {
                 wait()
             }
         }
+    }
+    
+    override func processing() {
+        // no processing available
     }
     
     override func cancel() {

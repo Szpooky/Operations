@@ -1,9 +1,9 @@
 //
-//  ContainerOperation.swift
-//  NSURLOperation
+//  BasicOperation.swift
+//  Operations
 //
-//  Created by Peter Sipos on 2019. 04. 09..
-//  Copyright © 2019. Szpooky. All rights reserved.
+//  Created by Peter Sipos on 2019. 04. 12..
+//  Copyright © 2019. Peter Sipos. All rights reserved.
 //
 
 import Foundation
@@ -18,15 +18,12 @@ class BasicOperation: Operation {
     open var tag: Int = 0
     open var data: Data = Data()
     open var error: Error?
+    open weak var parent: BasicOperation?
     open var object: Any?
     open var progressValue: Float = 0.0
     open var progressHandler: ((BasicOperation) -> Swift.Void) = { (operation) -> Void in }
     open var completionHandler: ((BasicOperation) -> Swift.Void) = { (operation) -> Void in }
     open var isSync: Bool = false
-    open var isOperationRunning: Bool = false
-    open var isOperationFinished: Bool = false
-    open private(set) var isOperationCancelled: Bool = false
-    open private(set) var isWaiting: Bool = false
     open var queue: OperationQueue = OperationCenter.shared.defaultQueue
     open lazy var ownedQueue: OperationQueue = {
         let queue = OperationQueue()
@@ -36,6 +33,31 @@ class BasicOperation: Operation {
     
     private let semaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
     private let taskSemaphore: DispatchSemaphore = DispatchSemaphore(value: 0)
+    private var isOperationExecuting: Bool = false {
+        willSet {
+            willChangeValue(forKey: "isExecuting")
+        }
+        didSet {
+            didChangeValue(forKey: "isExecuting")
+        }
+    }
+    private var isOperationFinished: Bool = false {
+        willSet {
+            willChangeValue(forKey: "isFinished")
+        }
+        didSet {
+            didChangeValue(forKey: "isFinished")
+        }
+    }
+    private var isOperationCancelled: Bool = false {
+        willSet {
+            willChangeValue(forKey: "isCancelled")
+        }
+        didSet {
+            didChangeValue(forKey: "isCancelled")
+        }
+    }
+    private var isWaiting: Bool = false
     
     override init() {
         super.init()
@@ -46,7 +68,7 @@ class BasicOperation: Operation {
     
     func run() {
         autoreleasepool {
-            if self.isRunning() == false && self.isCancelled() == false && self.isFinished() == false {
+            if self.isExecuting == false && self.isCancelled == false && self.isFinished == false {
                 queue.addOperation(self)
                 if isSync == true {
                     let _ = semaphore.wait(timeout: .now() + 99999)
@@ -55,25 +77,29 @@ class BasicOperation: Operation {
         }
     }
     
+    override func start() {
+        super.start()
+    }
+    
     override func cancel() {
         isOperationCancelled = true
         ownedQueue.cancelAllOperations()
     }
     
-    func isCancelled() -> Bool {
+    override var isCancelled : Bool {
         return isOperationCancelled
     }
     
-    func isRunning() -> Bool {
-        return isOperationRunning
+    override var isExecuting: Bool {
+        return isOperationExecuting
     }
     
-    func isFinished() -> Bool {
+    override var isFinished: Bool {
         return isOperationFinished
     }
     
-    open func started() {
-        progressHandler(self)
+    override var isReady: Bool {
+        return true
     }
     
     open func processing() {
@@ -90,11 +116,9 @@ class BasicOperation: Operation {
             taskSemaphore.signal()
         }
         
-        self.isOperationRunning = false
+        self.isOperationExecuting = false
         
-        if error == nil && isOperationCancelled == false {
-            isOperationFinished = true
-        }
+        isOperationFinished = true
         
         if isSync == true {
             semaphore.signal()
@@ -120,7 +144,7 @@ class BasicOperation: Operation {
             return;
         }
         
-        isOperationRunning = true
+        isOperationExecuting = true
     }
     
     deinit {

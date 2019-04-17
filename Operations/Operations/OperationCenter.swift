@@ -1,9 +1,9 @@
 //
 //  OperationCenter.swift
-//  NSURLOperation
+//  Operations
 //
-//  Created by Peter Sipos on 2019. 04. 09..
-//  Copyright © 2019. Szpooky. All rights reserved.
+//  Created by Peter Sipos on 2019. 04. 12..
+//  Copyright © 2019. Peter Sipos. All rights reserved.
 //
 
 import Foundation
@@ -18,8 +18,13 @@ class OperationCenter: NSObject {
         queue.maxConcurrentOperationCount = 1
         return queue
     }()
+    
+    // DEBUG operations
     private let operationsQueue = DispatchQueue(label: "com.URLOperationCenter.operations")
     
+}
+
+extension OperationCenter {
     open func reportAllOperations(completion: @escaping ([BasicOperation]) -> Void) {
         operations.removeAll()
         if(operationCount > 0) {
@@ -35,10 +40,5 @@ class OperationCenter: NSObject {
         operationsQueue.sync {
             operations.append(operation)
         }
-    }
-    
-    open func cancelAllOperations() {
-        defaultQueue.cancelAllOperations()
-        prioritedQueue.cancelAllOperations()
     }
 }

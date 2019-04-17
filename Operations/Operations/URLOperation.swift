@@ -1,9 +1,9 @@
 //
-//  NSURLOperation.swift
-//  NSURLOperation
+//  URLOperation.swift
+//  Operations
 //
-//  Created by Szpooky on 2019. 04. 05..
-//  Copyright © 2019. Szpooky. All rights reserved.
+//  Created by Peter Sipos on 2019. 04. 12..
+//  Copyright © 2019. Peter Sipos. All rights reserved.
 //
 
 import Foundation
@@ -12,7 +12,7 @@ class URLOperation: BasicOperation {
     open var request: URLRequest?
     open var response: HTTPURLResponse?
     open var session: URLSession = URLSessionObserver.shared.defaultSession
-    open var saveToFile: Bool = false
+    open var isDownloadOperation: Bool = false
     open var filePath: String = ""
     open weak var task: URLSessionTask?
     public static let defaultQueue: OperationQueue = OperationQueue()
@@ -32,7 +32,7 @@ class URLOperation: BasicOperation {
             super.main()
             
             if let request = self.request, error == nil {
-                if saveToFile == true {
+                if isDownloadOperation == true {
                     let task = self.session.downloadTask(with: request)
                     self.task = task
                 } else {
@@ -43,16 +43,10 @@ class URLOperation: BasicOperation {
                 if let task = self.task {
                     task.taskDescription = identifier
                     URLSessionObserver.shared.addURLOperation(self)
-                    print("operationID: " + identifier)
                     task.resume()
-                    self.isOperationRunning = true
-                    
                     wait()
-                    
                     URLSessionObserver.shared.removeURLOperation(self)
                 }
-                
-                print("here")
             }
         }
     }
@@ -82,7 +76,6 @@ class URLOperation: BasicOperation {
                 self.operation(operationID: operationID) { (operation) in
                     operation.response = httpResponse
                     operation.processing()
-                    print("didReceive response: " + String(describing: httpResponse))
                 }
             }
             completionHandler(URLSession.ResponseDisposition.allow)
@@ -93,7 +86,6 @@ class URLOperation: BasicOperation {
                 self.operation(operationID: operationID) { (operation) in
                     operation.filePath = location.absoluteString
                     operation.finish()
-                    print("didFinishDownloadingTo: " + location.absoluteString)
                 }
             }
         }
@@ -105,7 +97,6 @@ class URLOperation: BasicOperation {
                 self.operation(operationID: operationID) { (operation) in
                     operation.progressValue = progress
                     operation.processing()
-                    print("progress: " + String(describing: operationID))
                 }
             }
         }
@@ -122,7 +113,6 @@ class URLOperation: BasicOperation {
                         }
                     }
                     operation.processing()
-                    print("didReceive data: " + String(describing: operationID))
                 }
             }
         }
@@ -154,7 +144,6 @@ class URLOperation: BasicOperation {
                 self.operation(operationID: operationID) { (operation) in
                     operation.error = error
                     operation.finish()
-                    print("didCompleteWithError: " + String(describing: operationID))
                 }
             }
         }

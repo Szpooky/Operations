@@ -16,14 +16,13 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         
         let button = UIButton(type: .custom)
+        button.tag = 1
         button.backgroundColor = UIColor.green
         button.setTitle("Start", for: .normal)
         button.frame = CGRect(x: 0.0, y: 0.0, width: 300.0, height: 60.0)
         button.center = view.center
         view.addSubview(button)
         button.addTarget(self, action: #selector(cancelAction(sender:)), for: .touchUpInside)
-        
-        print("end viewDidLoad method")
     }
 
     @objc func cancelAction(sender: UIButton) {
@@ -46,18 +45,18 @@ class ViewController: UIViewController {
         
         let operation = SampleContainerOperation()
         operation.completionHandler = { (operation) -> Void in
-            print("completionHandler SampleContainerOperation")
-            if let error = operation.error {
-                print(operation.error == nil ? "" : error.localizedDescription)
+            DispatchQueue.main.async {
+                if let error = operation.error {
+                    print(error.localizedDescription)
+                } else if let button = self.view.viewWithTag(1) as? UIButton {
+                    self.cancelAction(sender: button)
+                }
             }
         }
         operation.progressHandler = { (operation) -> Void in
             print(operation.progressValue)
         }
-        //operation.saveToFile = true
-        //operation.isSync = true
-        operation.queue = URLOperation.prioritedQueue
-        //operation.run()
+        operation.queue = OperationCenter.shared.prioritedQueue
         
         return operation
     }
