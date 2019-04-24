@@ -25,7 +25,7 @@ class BasicOperation: Operation {
     open var completionHandler: ((BasicOperation) -> Swift.Void) = { (operation) -> Void in }
     open var isSync: Bool = false
     open var queue: OperationQueue = OperationCenter.shared.defaultQueue
-    open lazy var ownedQueue: OperationQueue = {
+    open lazy var subOperationQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
         return queue
@@ -66,7 +66,7 @@ class BasicOperation: Operation {
         NotificationCenter.default.addObserver(self, selector: #selector(report), name: NSNotification.Name.OperationRequestNotification, object: nil)
     }
     
-    func run() {
+    func startOnQueue() {
         autoreleasepool {
             if self.isExecuting == false && self.isCancelled == false && self.isFinished == false {
                 queue.addOperation(self)
@@ -83,7 +83,7 @@ class BasicOperation: Operation {
     
     override func cancel() {
         isOperationCancelled = true
-        ownedQueue.cancelAllOperations()
+        subOperationQueue.cancelAllOperations()
     }
     
     override var isCancelled : Bool {
@@ -110,15 +110,16 @@ class BasicOperation: Operation {
         if isOperationCancelled == true && error == nil {
             error = NSError(domain: "URLOperation", code: -999, userInfo: [NSLocalizedDescriptionKey : "Operation cancelled"])
         }
+        
+        self.isOperationExecuting = false
+        
+        isOperationFinished = true
+        
         completionHandler(self)
         
         if isWaiting == true {
             taskSemaphore.signal()
         }
-        
-        self.isOperationExecuting = false
-        
-        isOperationFinished = true
         
         if isSync == true {
             semaphore.signal()
@@ -136,6 +137,17 @@ class BasicOperation: Operation {
                 let _ = taskSemaphore.wait(timeout: .now() + 99999)
             }
         }
+    }
+    
+    func addSubOperation(_ operation:BasicOperation) {
+        operation.isSync = true
+        operation.queue = self.subOperationQueue
+        operation.startOnQueue()
+        self.error = operation.error
+    }
+    
+    func unknownError() {
+        self.error = NSError(domain: "URLOperation", code: -139871, userInfo: [NSLocalizedDescriptionKey : "Unknown Error"])
     }
     
     override func main() {

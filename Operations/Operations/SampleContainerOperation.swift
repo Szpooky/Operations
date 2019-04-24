@@ -19,14 +19,14 @@ class SampleContainerOperation: BasicOperation {
             // work with operation 1
             // ......
             
-            if self.error == nil {  // throw by operation 1
+            if self.error == nil {  // skip the next step if error occurs
                 print("first Operation OK")
                 let _ = runOperation2()
                 // work with operation 2
                 // ......
             }
             
-            if self.error == nil { // throw by operation 2
+            if self.error == nil { // skip the next step if error occurs
                 print("second Operation OK")
                 let _ = runOperation3()
                 // work with operation 3
@@ -49,10 +49,7 @@ class SampleContainerOperation: BasicOperation {
         let request = URLRequest(url: URL(string: "https://d2qguwbxlx1sbt.cloudfront.net/TextInMotion-VideoSample-1080p.mp4")!)
         operation.request = request
         operation.progressHandler = { (operation) -> Void in self.progressValue = operation.progressValue; self.processing(operation) }
-        operation.isSync = true
-        operation.queue = self.ownedQueue
-        operation.run()
-        self.error = operation.error // feel the trick!
+        self.addSubOperation(operation)
         
         return operation
     }
@@ -65,10 +62,7 @@ class SampleContainerOperation: BasicOperation {
         operation.request = request
         operation.progressHandler = { (operation) -> Void in self.progressValue = operation.progressValue; self.processing(operation) }
         operation.isDownloadOperation = true
-        operation.isSync = true
-        operation.queue = self.ownedQueue
-        operation.run()
-        self.error = operation.error // feel the trick!
+        self.addSubOperation(operation)
         
         return operation
     }
@@ -81,10 +75,7 @@ class SampleContainerOperation: BasicOperation {
         operation.request = request
         operation.progressHandler = { (operation) -> Void in self.progressValue = operation.progressValue; self.processing(operation) }
         operation.isDownloadOperation = true
-        operation.isSync = true
-        operation.queue = self.ownedQueue
-        operation.run()
-        self.error = operation.error // feel the trick!
+        self.addSubOperation(operation)
         
         return operation
     }

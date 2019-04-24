@@ -31,7 +31,7 @@ class ViewController: UIViewController {
         if let title = title, title == "Start" {
             let operation = createOperation()
             self.operation = operation
-            operation.run()
+            operation.startOnQueue()
             sender.setTitle("Cancel", for: .normal)
         } else {
             if let operation = self.operation {
@@ -61,4 +61,3 @@ class ViewController: UIViewController {
         return operation
     }
 }
-

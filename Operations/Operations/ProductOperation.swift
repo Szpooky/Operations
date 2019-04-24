@@ -26,6 +26,9 @@ class ProductOperation : BasicOperation, SKProductsRequestDelegate {
                 request.start()
                 
                 wait()
+            } else {
+                unknownError()
+                finish()
             }
         }
     }

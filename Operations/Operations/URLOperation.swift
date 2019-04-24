@@ -46,7 +46,13 @@ class URLOperation: BasicOperation {
                     task.resume()
                     wait()
                     URLSessionObserver.shared.removeURLOperation(self)
+                } else {
+                    unknownError()
+                    finish()
                 }
+            } else {
+                unknownError()
+                finish()
             }
         }
     }
