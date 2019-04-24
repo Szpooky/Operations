@@ -26,9 +26,7 @@ class ViewController: UIViewController {
     }
 
     @objc func cancelAction(sender: UIButton) {
-        let title = sender.title(for: .normal)
-        
-        if let title = title, title == "Start" {
+        if let title = sender.title(for: .normal), title == "Start" {
             let operation = createOperation()
             self.operation = operation
             operation.startOnQueue()
@@ -48,8 +46,10 @@ class ViewController: UIViewController {
             DispatchQueue.main.async {
                 if let error = operation.error {
                     print(error.localizedDescription)
-                } else if let button = self.view.viewWithTag(1) as? UIButton {
-                    self.cancelAction(sender: button)
+                }
+                
+                if let button = self.view.viewWithTag(1) as? UIButton {
+                    button.setTitle("Start", for: .normal)
                 }
             }
         }

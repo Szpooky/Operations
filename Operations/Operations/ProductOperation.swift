@@ -10,16 +10,17 @@ import Foundation
 import StoreKit
 
 class ProductOperation : BasicOperation, SKProductsRequestDelegate {
-    open var productIdentifiers: [String]?
+    open var productIdentifiers: [String] = [String]()
+    open var products: [SKProduct] = [SKProduct]()
+    open var invalidProductIdentifiers: [String] = [String]()
+    
     private var request: SKProductsRequest?
-    open var products: [SKProduct]?
-    open var invalidProductIdentifiers: [String]?
     
     override func main() {
         autoreleasepool {
             super.main()
             
-            if let productIdentifiers = self.productIdentifiers, productIdentifiers.count > 0 {
+            if self.productIdentifiers.count > 0 {
                 let request = SKProductsRequest(productIdentifiers: Set(productIdentifiers))
                 request.delegate = self
                 self.request = request

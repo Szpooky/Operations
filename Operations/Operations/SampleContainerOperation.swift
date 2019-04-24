@@ -44,7 +44,6 @@ class SampleContainerOperation: BasicOperation {
     
     private func runOperation1() -> URLOperation {
         let operation = URLOperation()
-        operation.parent = self
         operation.tag = 1
         let request = URLRequest(url: URL(string: "https://d2qguwbxlx1sbt.cloudfront.net/TextInMotion-VideoSample-1080p.mp4")!)
         operation.request = request
@@ -56,7 +55,6 @@ class SampleContainerOperation: BasicOperation {
     
     private func runOperation2() -> URLOperation {
         let operation = URLOperation()
-        operation.parent = self
         operation.tag = 2
         let request = URLRequest(url: URL(string: "https://d2qguwbxlx1sbt.cloudfront.net/TextInMotion-VideoSample-1080p.mp4")!)
         operation.request = request
@@ -69,7 +67,6 @@ class SampleContainerOperation: BasicOperation {
     
     private func runOperation3() -> URLOperation {
         let operation = URLOperation()
-        operation.parent = self
         operation.tag = 3
         let request = URLRequest(url: URL(string: "https://d2qguwbxlx1sbt.cloudfront.net/TextInMotion-VideoSample-1080p.mp4")!)
         operation.request = request

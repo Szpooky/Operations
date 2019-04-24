@@ -71,7 +71,11 @@ class BasicOperation: Operation {
             if self.isExecuting == false && self.isCancelled == false && self.isFinished == false {
                 queue.addOperation(self)
                 if isSync == true {
-                    let _ = semaphore.wait(timeout: .now() + 99999)
+                    let stateOfSemaphore = semaphore.wait(timeout: .now() + .seconds(86400))
+                    
+                    if stateOfSemaphore == .timedOut {
+                        timedOutError()
+                    }
                 }
             }
         }
@@ -108,7 +112,7 @@ class BasicOperation: Operation {
     
     open func finish() {
         if isOperationCancelled == true && error == nil {
-            error = NSError(domain: "URLOperation", code: -999, userInfo: [NSLocalizedDescriptionKey : "Operation cancelled"])
+            error = NSError(domain: "Operation", code: -999, userInfo: [NSLocalizedDescriptionKey : "Operation cancelled"])
         }
         
         self.isOperationExecuting = false
@@ -134,7 +138,11 @@ class BasicOperation: Operation {
         autoreleasepool {
             if isWaiting == false {
                 isWaiting = true
-                let _ = taskSemaphore.wait(timeout: .now() + 99999)
+                let stateOfSemaphore = taskSemaphore.wait(timeout: .now() + .seconds(86400))
+                
+                if stateOfSemaphore == .timedOut {
+                    timedOutError()
+                }
             }
         }
     }
@@ -142,12 +150,17 @@ class BasicOperation: Operation {
     func addSubOperation(_ operation:BasicOperation) {
         operation.isSync = true
         operation.queue = self.subOperationQueue
+        operation.parent = self
         operation.startOnQueue()
         self.error = operation.error
     }
     
     func unknownError() {
-        self.error = NSError(domain: "URLOperation", code: -139871, userInfo: [NSLocalizedDescriptionKey : "Unknown Error"])
+        self.error = NSError(domain: "Operation", code: -139871, userInfo: [NSLocalizedDescriptionKey : "Unknown Error"])
+    }
+    
+    func timedOutError() {
+        self.error = NSError(domain: "Operation", code: -1398756, userInfo: [NSLocalizedDescriptionKey : "Operation timed out"])
     }
     
     override func main() {
