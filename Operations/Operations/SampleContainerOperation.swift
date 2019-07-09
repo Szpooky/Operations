@@ -21,16 +21,38 @@ class SampleContainerOperation: BasicOperation {
             
             if self.error == nil {  // skip the next step if error occurs
                 print("first Operation OK")
-                let _ = runOperation2()
+                let downloadOperation = runOperation2()
+                print(downloadOperation.filePath)
                 // work with operation 2
                 // ......
             }
             
             if self.error == nil { // skip the next step if error occurs
                 print("second Operation OK")
-                let _ = runOperation3()
+                let downloadOperation = runOperation3()
+                print(downloadOperation.filePath)
                 // work with operation 3
                 // ......
+            }
+            
+            var i = 0
+            while i < 5 {
+                if self.error == nil && self.isCancelled == false { // skip the next step if error occurs
+                    print("second Operation OK")
+                    let downloadOperation = runOperation3()
+                    print(downloadOperation.filePath)
+                    // work with operation 3
+                    // ......
+                    if self.isCancelled == false {
+                        sleep(3)
+                    }
+                }
+                
+                i += 1
+                
+                if self.isCancelled == true {
+                    break
+                }
             }
             
             finish()
